@@ -1,9 +1,9 @@
 import { Router } from "express"
-import { connection } from "../dataBase/db.js"
+import { categoriesGetController, categoriesPostController } from "../controllers/categories.controller.js"
+import { categoriesMiddleware } from "../middlewares/categories.middlewares.js"
 
 export const categoriesRoute = Router()
 
-categoriesRoute.get("/categories", async (req, res) => {
-    const categories = await connection.query("SELECT * FROM categories")
-    res.send(categories.rows)
-  })
+categoriesRoute.get("/categories", categoriesGetController)
+
+categoriesRoute.post("/categories", categoriesMiddleware, categoriesPostController)
