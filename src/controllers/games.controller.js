@@ -1,6 +1,13 @@
 import { connection } from "../dataBase/db.js"
 
 export async function gamesGetController(req, res) {
+const name = req.query.name
+if(name){
+    const games = await connection.query("SELECT * FROM games WHERE name ILIKE $1",
+    [`${name}%`])
+    res.send(games.rows)
+    return
+}
   const games = await connection.query("SELECT * FROM games")
   res.send(games.rows)
 }
