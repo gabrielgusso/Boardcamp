@@ -23,5 +23,5 @@ export async function categoriesMiddleware(req, res, next) {
   req.name = name
 
   next()
-    // console.log()
+
 }
