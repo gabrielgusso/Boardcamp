@@ -20,7 +20,7 @@ export async function rentalsMiddleware(req, res, next) {
     return res.sendStatus(400)
   }
 
-  const games = await connection.query('SELECT "stockTotal" FROM games WHERE id=$1', [
+  const games = await connection.query('SELECT * FROM games WHERE id=$1', [
     gameId,
   ])
   if (!games.rows[0] || games.rows[0].stockTotal === 0) {
@@ -37,7 +37,7 @@ export async function rentalsMiddleware(req, res, next) {
     return
   }
 
-
+  req.price = games.rows[0].pricePerDay
 
   next()
 }
