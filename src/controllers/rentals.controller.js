@@ -32,7 +32,6 @@ export async function rentalsPostController(req, res) {
 export async function rentalsGetController(req, res) {
   const custumerId = req.query.custumerId
   const gameId = req.query.gameId
-  console.log(custumerId)
 
   if(custumerId){
     const custumerRental = await connection.query(
@@ -54,4 +53,37 @@ export async function rentalsGetController(req, res) {
     `SELECT rentals.*, JSON_BUILD_OBJECT('name', customers.name, 'id', customers.id) AS customers, JSON_BUILD_OBJECT('name', games.name, 'id', games.id, 'categoryId', games."categoryId", 'categoryName', categories.name) AS game FROM customers JOIN rentals ON customers.id = rentals."customerId" JOIN games ON rentals."gameId" = games.id JOIN categories ON games."categoryId" = categories.id`
   )
   res.send(rentals.rows)
+}
+
+export async function rentalsResturnPostController(req, res) {
+  const id = req.params.id
+  let today = dayjs().locale("pt-br").format("YYYY-MM-DD")
+  let dalayFee = 0
+  const searchRentDay = await connection.query('SELECT rentals."rentDate", rentals."daysRented", rentals."originalPrice", rentals."returnDate" FROM rentals WHERE id=$1', [id])
+
+  if(!id){
+    res.sendStatus(404)
+    return
+  }
+  if(searchRentDay.rows[0].returnDate !== null){
+    res.sendStatus(400)
+    return
+  }
+  const rendDay = searchRentDay.rows[0].rentDate
+  let daysRentdAtNow = dayjs(today).diff(rendDay, "day")
+  const tax = daysRentdAtNow - searchRentDay.rows[0].daysRented
+  const pricePerDay = searchRentDay.rows[0].originalPrice / searchRentDay.rows[0].daysRented 
+  if(tax > 0){
+    dalayFee = tax * pricePerDay
+  } 
+  
+  try {
+    await connection.query(
+      'UPDATE rentals SET "returnDate"=$1, "delayFee"=$2 WHERE id=$3',
+      [today, dalayFee, id]
+    )
+    res.sendStatus(201)
+  } catch (error) {
+    console.log(error)
+  }
 }
