@@ -30,6 +30,26 @@ export async function rentalsPostController(req, res) {
 }
 
 export async function rentalsGetController(req, res) {
+  const custumerId = req.query.custumerId
+  const gameId = req.query.gameId
+  console.log(custumerId)
+
+  if(custumerId){
+    const custumerRental = await connection.query(
+      `SELECT rentals.*, JSON_BUILD_OBJECT('name', customers.name, 'id', customers.id) AS customers, JSON_BUILD_OBJECT('name', games.name, 'id', games.id, 'categoryId', games."categoryId", 'categoryName', categories.name) AS game FROM customers JOIN rentals ON customers.id = rentals."customerId" JOIN games ON rentals."gameId" = games.id JOIN categories ON games."categoryId" = categories.id WHERE "customerId"=$1`, [custumerId]
+    )
+    res.send(custumerRental.rows)
+    return
+  }
+
+  if(gameId){
+    const gameRental = await connection.query(
+      `SELECT rentals.*, JSON_BUILD_OBJECT('name', customers.name, 'id', customers.id) AS customers, JSON_BUILD_OBJECT('name', games.name, 'id', games.id, 'categoryId', games."categoryId", 'categoryName', categories.name) AS game FROM customers JOIN rentals ON customers.id = rentals."customerId" JOIN games ON rentals."gameId" = games.id JOIN categories ON games."categoryId" = categories.id WHERE "gameId"=$1`, [gameId]
+    )
+    res.send(gameRental.rows)
+    return
+  }
+
   const rentals = await connection.query(
     `SELECT rentals.*, JSON_BUILD_OBJECT('name', customers.name, 'id', customers.id) AS customers, JSON_BUILD_OBJECT('name', games.name, 'id', games.id, 'categoryId', games."categoryId", 'categoryName', categories.name) AS game FROM customers JOIN rentals ON customers.id = rentals."customerId" JOIN games ON rentals."gameId" = games.id JOIN categories ON games."categoryId" = categories.id`
   )
