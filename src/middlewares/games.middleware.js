@@ -19,8 +19,5 @@ export async function gamesMiddleware(req, res, next) {
     if(games.rows[0]){
       return res.sendStatus(409)
     }
-  
-  
     next()
-
   }
