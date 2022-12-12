@@ -3,8 +3,10 @@ import { categoriesRoute } from "./routes/categories.router.js"
 import { gamesRoute } from "./routes/games.router.js"
 import { customersRoute } from "./routes/custumers.router.js"
 import { rentalsRoute } from "./routes/rentals.router.js"
+import cors from "cors"
 
 const app = express()
+app.use(cors())
 app.use(express.json())
 app.use(categoriesRoute)
 app.use(gamesRoute)
